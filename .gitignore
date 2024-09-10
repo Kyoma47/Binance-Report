@@ -1,0 +1,15 @@
+# Byte-compiled files
+__pycache__/
+*.pyc
+
+# Virtual environments
+.env/
+venv/
+
+# Distribution files
+dist/
+build/
+
+# Logs and temporary files
+*.log
+*.tmp
