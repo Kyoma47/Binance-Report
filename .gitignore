@@ -1,3 +1,6 @@
+# Secrets file :
+**/.env
+
 # Byte-compiled files
 __pycache__/
 *.pyc
@@ -5,6 +8,7 @@ __pycache__/
 # Virtual environments
 .env/
 venv/
+.venv/
 
 # Distribution files
 dist/
