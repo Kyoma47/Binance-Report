@@ -1,5 +1,6 @@
 # Secrets file :
 **/.env
+**/gcp-credentials.json
 
 # Byte-compiled files
 __pycache__/
