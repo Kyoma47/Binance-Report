@@ -1,0 +1,1 @@
+py binance_spot.py && py history_price.py && py history_amount.py && py mayer_multiple_bands_yesterday.py
