@@ -62,11 +62,19 @@ def get_multiple_crypto_yesterday_data(crypto_list):
 
 # Liste des crypto-monnaies
 crypto_list = [
-	"AAVE", "ANKR", "BNB", "BONK", "BTC", "CKB", "DOGE", "DOT", "DUSK", 
+	"AAVE", "ANKR", "BNB", "BONK", "BTC", 
+    #"CKB", "DOGE", 
+    "DOT", "DUSK", 
 	"ETH", "FET", "FLOKI", "GLM", 
 	"INJ", "JASMY", "JUP", "LINK", "LPT", 
-	"NEAR", "OM", "OP", "ORDI", "PENDLE", "PEPE", "POL", "PYTH", 
-	"RENDER", "SHIB", "SOL", "STRAX", "STX", "TAO", "TON", "TRU", 
+	"NEAR", 
+    "OM", 
+    "OP", 
+    #"ORDI", 
+    "PENDLE", "PEPE", "POL", "PYTH", 
+	"RENDER", "SHIB", "SOL", 
+    #"STRAX", 
+    "STX", "TAO", "TON", "TRU", 
 	"UNI", "VET",
 ]
 crypto_list = [ crypto +'-USD' for crypto in crypto_list ] # ['BTC-USD', 'ETH-USD', 'XRP-USD', 'LTC-USD', 'ADA-USD']

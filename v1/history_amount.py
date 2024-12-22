@@ -27,8 +27,9 @@ def list_spot_assets() :
     L = sorted( L , key=str.casefold )
     return L
 
-asset_names = list_spot_assets()
-print("asset_names :", asset_names)
+L = list_spot_assets()
+print("L :", L)
+print()
 
 
 def get_price_on_date(symbol, date): 
@@ -52,7 +53,8 @@ def get_balance_df () :
     #print("code :", snapshots['code'])
     #print("message :", snapshots['msg'])
 
-    print( snapshots ) 
+    # print( snapshots ) 
+    
     #balances = snapshots['snapshotVos']
     #for balance in balances : 
     #    print(balance)
@@ -71,11 +73,26 @@ def get_balance_df () :
         balances.append( balance_dict )
         
     # Convert to DataFrame for analysis
-    df_balances = pd.DataFrame(balances, columns= sorted( list(asset_names) + ["totalAssetOfBtc", "date"] ))
+    columns = sorted( list(asset_names) )
+    df_balances = pd.DataFrame(balances, columns= columns + ["date", "totalAssetOfBtc"] )
+
+    
+    L1, L2 = L, list(columns)
+    print("current assets :" , L1 )
+    print("df columns :" , L2 )
+    print()
+    
+    # Trouver les éléments dans L2 mais pas dans L1
+    difference = list(set(L2) - set(L1))
+    print("Hiding removed coins :", difference )
+    for name in difference :
+        print("-> Removing", name )
+        df_balances.pop( name )
 
     # Display the data
     print(df_balances)
     return df_balances
+
 
 crypto_amount_df = get_balance_df()
 oldest_date = crypto_amount_df['date'][0]
@@ -231,86 +248,5 @@ def fill_gsheet_row( row_index, col_index, date_str, asset_names ):
     print("Data inserted successfully.")
     return row_dict
     
-
-
-def read_dates_from_gsheet() : 
-    # Get all values from column B
-    column_b_values = worksheet.col_values(2)  # Column B is the second column
-
-    # Find "2024-04-19" cell (start of DataFrame in gsheet): 
-    halving_date_cell = worksheet.find("2024-04-19")
-    row_start_index = halving_date_cell.row
-    headers_values = worksheet.row_values( row_start_index )
-
-    for j in range(halving_date_cell.col, len(headers_values) ):
-        if headers_values[j] != "" : 
-            print(headers_values[j], j)
-            col_start_index = j+1
-            break 
-
-    print( f"start index : ({row_start_index},{col_start_index})" )
-    print( halving_date_cell , halving_date_cell.row, halving_date_cell.col)
-
-    # Define the starting row and column (E8 becomes row 8, column 5)
-    start_row = row_start_index # 8
-    start_col = col_start_index # 5
-
-    # Prepare the data for insertion
-    headers = asset_names # list of str ['AAVE', 'ANKR', ... ]
-
-    # Insert keys starting from E8 (row 8, column 5)
-    keys_range = f'{gspread.utils.rowcol_to_a1(start_row, start_col)}:{gspread.utils.rowcol_to_a1(start_row, start_col + len(headers) - 1)}'
-    worksheet.update(values=[headers], range_name=keys_range, value_input_option='RAW')
-
-
-    for i, date_str in enumerate(column_b_values) :
-        row_index = i+1
-
-        # Check if the input date is in the past, present, or future
-        is_empty_date   = (date_str == "") 
-        if is_empty_date : 
-            is_past_date, is_current_date, is_future_date, is_halving_date = False, False, False, False
-        else :
-            input_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-            current_date = datetime.now().date()
-            halving_date = datetime.strptime("2024-04-19", "%Y-%m-%d").date()
-            #print("input_date :", input_date)
-            #print("current_date :", current_date)
-            is_halving_date = halving_date == input_date
-            is_past_date    = (input_date  < current_date) 
-            is_current_date = (input_date == current_date)
-            is_future_date  = (input_date  > current_date)
-        
-        message = "(empty date)" if is_empty_date else (
-            "(past date)" if is_past_date else (
-                "(current date)" if is_current_date else "(futur date)" 
-            )
-        )
-
-        print(row_index, date_str, message, end=" ")
-        if (not is_empty_date) and is_past_date and (not is_halving_date) : 
-            print( f"=> fetching price for date '{date_str}' " )
-            row_values_set = set( worksheet.row_values( row_index )[col_start_index-1:]) 
-            #print("\t", row_values_set)
-            if row_values_set in [ set(), {'', '0,00'},  {''}, {'0,00'} ]:
-                print( "\t line to process :" )
-                print( "|".join(asset_names) )
-                asset_names
-                fill_gsheet_row( row_index, col_start_index,  date_str, asset_names )
-            else : 
-                print( f"\t Skip line {row_index} already filled : { str(list(row_values_set))[:100] }..." )
-                time.sleep(0.8)
-
-        elif is_halving_date : print( f"=> skip halving date '{date_str}' " )
-        print()
-
-        if is_current_date or is_future_date : 
-            print("Stop iterration on date :", date_str)
-            break
-
-
-    # return column_b_values
-
 #print( "get_price_on_date :" , get_price_on_date( symbol="AAVEUSDT", date="2024-05-01") )
 print( "get_price_on_date :" , get_amount_on_date( symbol="AAVEUSDT", date="2024-05-01") )
-#print( read_dates_from_gsheet() )
